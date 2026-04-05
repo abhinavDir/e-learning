@@ -1,0 +1,261 @@
+.quiz-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.quiz-header {
+  margin-bottom: 2rem;
+}
+
+.difficulty-tag {
+  display: inline-block;
+  background: var(--accent);
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.quiz-timer {
+  gap: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text);
+  background: var(--surface-alt);
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+.quiz-timer .danger {
+  color: var(--danger);
+}
+
+.quiz-timer .pulsate {
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 8px;
+  background: var(--surface-alt);
+  border-radius: 4px;
+  margin-bottom: 2.5rem;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  transition: width 0.3s ease;
+}
+
+.question-card {
+  padding: 2.5rem;
+}
+
+.question-text {
+  font-size: 1.5rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin-bottom: 2rem;
+}
+
+.options-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 1rem;
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 1.1rem;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.option-btn:hover:not(:disabled) {
+  background: var(--border);
+  transform: translateX(10px);
+}
+
+.option-btn.selected {
+  border-color: var(--primary);
+  background: rgba(99, 102, 241, 0.1);
+}
+
+.option-btn.correct {
+  background: rgba(34, 197, 94, 0.1);
+  border-color: var(--success);
+  color: var(--success);
+}
+
+.option-btn.wrong {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.option-letter {
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.option-val {
+  flex: 1;
+}
+
+.status-icon {
+  margin-left: auto;
+}
+
+.explanation-area {
+  margin-top: 2.5rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border);
+}
+
+.explanation-header {
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.explanation-area p {
+  line-height: 1.6;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+}
+
+.next-btn {
+  margin-left: auto;
+  justify-content: center;
+}
+
+/* Results Card Styles */
+.results-card {
+  max-width: 500px;
+  width: 100%;
+  padding: 3rem;
+  text-align: center;
+}
+
+.trophy-icon {
+  margin-bottom: 1.5rem;
+}
+
+.results-stats {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  margin: 2rem 0;
+}
+
+.res-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.res-val {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.res-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.results-actions {
+  gap: 1rem;
+  margin-top: 2rem;
+  justify-content: center;
+}
+
+/* Pre-quiz Start Screen */
+.quiz-start-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--background);
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.start-card {
+  max-width: 500px;
+  width: 100%;
+  padding: 3rem;
+  text-align: center;
+}
+
+.start-icon {
+  margin-bottom: 2rem;
+}
+
+.precautions-list {
+  text-align: left;
+  background: var(--surface-alt);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  margin: 2rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.precaution-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.precaution-item strong {
+  color: var(--text);
+}
+
+.start-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.start-actions .btn {
+  width: 100%;
+}
+

@@ -1,0 +1,203 @@
+/* EditCourse.css - Refactored for Universal Light Theme */
+.ec-page-container, .ec-page-container * {
+  box-sizing: border-box;
+}
+.ec-page-container {
+  min-height: 100vh;
+  background-color: var(--bg);
+  background-image: var(--bg-grid);
+  padding: 1.5rem 1rem 6rem;
+  font-family: 'Inter', 'Outfit', sans-serif;
+  color: var(--text-main);
+}
+
+/* Floating Navigation Wrapper */
+.ec-nav-wrapper {
+  position: sticky;
+  top: 1rem;
+  z-index: 100;
+  max-width: 1200px;
+  margin: 0 auto 3rem;
+}
+
+.ec-nav-capsule {
+  background: var(--surface);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 0.75rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.ec-back-btn {
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 12px;
+  background: var(--alternate);
+  border: 1px solid var(--glass-border);
+  color: var(--text-muted);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: var(--transition);
+}
+.ec-back-btn:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.ec-page-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-title);
+  margin: 0.1rem 0 0 0;
+}
+
+.ec-btn-primary {
+  background: var(--primary);
+  color: #fff;
+  border: none;
+  padding: 0.8rem 1.5rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: var(--transition);
+  box-shadow: 0 10px 20px -10px var(--primary);
+}
+.ec-btn-primary:hover { transform: translateY(-2px); opacity: 0.9; }
+
+/* Grid Layout */
+.ec-workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.ec-card {
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: var(--shadow-glass);
+}
+
+.ec-card-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-title);
+  font-family: 'Outfit';
+}
+
+.ec-input {
+  background: var(--alternate);
+  border: 1px solid var(--glass-border);
+  padding: 1rem;
+  border-radius: 12px;
+  color: var(--text-main);
+  font-size: 0.9rem;
+  transition: var(--transition);
+  width: 100%;
+}
+.ec-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: white;
+}
+
+.ec-module {
+  background: var(--alternate);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.ec-lecture {
+  background: var(--card-bg);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.ec-lecture-field {
+  background: var(--alternate);
+  border: 1px solid var(--glass-border);
+  padding: 0.75rem;
+  border-radius: 8px;
+  color: var(--text-main);
+  font-size: 0.85rem;
+  width: 100%;
+}
+
+.ec-upload-label { 
+  display: flex; 
+  align-items: center; 
+  gap: 0.5rem; 
+  background: var(--primary); 
+  border: none;
+  padding: 0.75rem 1rem; 
+  border-radius: 8px; 
+  color: white; 
+  font-size: 0.75rem; 
+  font-weight: 700; 
+  cursor: pointer; 
+  transition: var(--transition);
+}
+.ec-upload-label:hover { filter: brightness(1.1); }
+
+.ec-thumbnail-wrap {
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  background: var(--alternate);
+}
+
+.ec-dot.active {
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
+}
+
+.hidden { display: none; }
+
+.ec-upload-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: 0.5rem;
+}
+
+.animate-spin {
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 1024px) {
+  .ec-workspace-grid { grid-template-columns: 1fr; }
+}
