@@ -22,7 +22,9 @@ const AuthPage = ({ onLogin }) => {
     setLoading(true);
     setError('');
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
+      const endpoint = isLogin
+        ? '/auth/login'
+        : '/auth/register';
       const res = await api.post(endpoint, formData);
       onLogin(res.data.token, res.data.user);
       navigate('/dashboard');
