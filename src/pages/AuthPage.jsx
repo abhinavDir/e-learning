@@ -22,7 +22,7 @@ const AuthPage = ({ onLogin }) => {
     setLoading(true);
     setError('');
     try {
-      const endpoint = isLogin ? '/api/auth/login' : '/api/auth/signup';
+      const endpoint = isLogin ? '/auth/login' : '/auth/signup';
       const res = await api.post(endpoint, formData);
       onLogin(res.data.token, res.data.user);
       navigate('/dashboard');
@@ -48,39 +48,39 @@ const AuthPage = ({ onLogin }) => {
           {!isLogin && (
             <div className="form-group">
               <label>Full Name</label>
-              <input 
-                type="text" 
-                name="name" 
-                className="input" 
-                placeholder="John Doe" 
-                value={formData.name} 
-                onChange={handleChange} 
-                required 
+              <input
+                type="text"
+                name="name"
+                className="input"
+                placeholder="John Doe"
+                value={formData.name}
+                onChange={handleChange}
+                required
               />
             </div>
           )}
           <div className="form-group">
             <label>Email Address</label>
-            <input 
-              type="email" 
-              name="email" 
-              className="input" 
-              placeholder="john@example.com" 
-              value={formData.email} 
-              onChange={handleChange} 
-              required 
+            <input
+              type="email"
+              name="email"
+              className="input"
+              placeholder="john@example.com"
+              value={formData.email}
+              onChange={handleChange}
+              required
             />
           </div>
           <div className="form-group">
             <label>Password</label>
-            <input 
-              type="password" 
-              name="password" 
-              className="input" 
-              placeholder="••••••••" 
-              value={formData.password} 
-              onChange={handleChange} 
-              required 
+            <input
+              type="password"
+              name="password"
+              className="input"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleChange}
+              required
             />
           </div>
 
