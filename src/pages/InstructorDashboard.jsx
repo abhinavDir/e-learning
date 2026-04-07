@@ -37,7 +37,7 @@ const InstructorDashboard = () => {
     const fetchMyCourses = async () => {
       try {
         const { data } = await api.get('/courses/instructor/me');
-        setCourses(data);
+        setCourses(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
       }
@@ -46,7 +46,7 @@ const InstructorDashboard = () => {
     const fetchMyStudents = async () => {
       try {
         const { data } = await api.get('/enroll/students');
-        setStudents(data);
+        setStudents(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
       }
@@ -55,7 +55,7 @@ const InstructorDashboard = () => {
     const fetchMyQuizzes = async () => {
       try {
         const { data } = await api.get('/quiz/instructor/me');
-        setQuizzes(data);
+        setQuizzes(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
       }
@@ -64,7 +64,7 @@ const InstructorDashboard = () => {
     const fetchMyFeedback = async () => {
       try {
         const { data } = await api.get('/feedback/instructor/me');
-        setFeedback(data);
+        setFeedback(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
       }
@@ -105,6 +105,12 @@ const InstructorDashboard = () => {
     }
   };
 
+  const avgRating = React.useMemo(() => {
+    if (!feedback || feedback.length === 0) return 0;
+    const sum = feedback.reduce((acc, f) => acc + (f.rating || 0), 0);
+    return (sum / feedback.length).toFixed(1);
+  }, [feedback]);
+
   if (loading) return <div className="h-screen flex-center animate-pulse text-2xl font-bold font-outfit text-primary tracking-[0.2em] capitalize">Initializing Studio...</div>;
 
   return (
@@ -136,10 +142,10 @@ const InstructorDashboard = () => {
       <section className="analytics-overview max-width">
         <div className="analytics-grid">
           {[
-            { label: "Active Courses", val: courses.length, icon: <BookOpen size={24} />, color: "#3b82f6", trend: "+12%" },
-            { label: "Global Units", val: quizzes.length, icon: <BrainCircuit size={24} />, color: "#8b5cf6", trend: "+12%" },
-            { label: "Total Learners", val: courses.reduce((acc, c) => acc + (c.enrolledStudentsCount || 0), 0), icon: <Users size={24} />, color: "#10b981", trend: "+24%" },
-            { label: "Average Rating", val: 4.9, icon: <Star size={24} />, color: "#f59e0b", trend: "+5%" }
+            { label: "Active Courses", val: (Array.isArray(courses) ? courses : []).length, icon: <BookOpen size={24} />, color: "#3b82f6" },
+            { label: "Global Units", val: (Array.isArray(quizzes) ? quizzes : []).length, icon: <BrainCircuit size={24} />, color: "#8b5cf6" },
+            { label: "Total Learners", val: (Array.isArray(courses) ? courses : []).reduce((acc, c) => acc + (c.enrolledStudentsCount || 0), 0), icon: <Users size={24} />, color: "#10b981" },
+            { label: "Average Rating", val: avgRating > 0 ? avgRating : "-", icon: <Star size={24} />, color: "#f59e0b" }
           ].map((stat, i) => (
             <motion.div
               key={i}
@@ -151,9 +157,6 @@ const InstructorDashboard = () => {
               <header className="stat-card-header">
                 <div className="stat-icon-outer" style={{ background: `${stat.color}15`, color: stat.color }}>
                   {stat.icon}
-                </div>
-                <div className="stat-trend">
-                  <ArrowUpRight size={14} /> {stat.trend}
                 </div>
               </header>
 
@@ -179,9 +182,9 @@ const InstructorDashboard = () => {
         </div>
 
         {activeTab === 'courses' && (
-          courses.length > 0 ? (
+          (Array.isArray(courses) ? courses : []).length > 0 ? (
             <div className="instructor-course-stack">
-              {courses.map((course, i) => (
+              {(Array.isArray(courses) ? courses : []).map((course, i) => (
                 <motion.div
                   key={course._id}
                   initial={{ opacity: 0, scale: 0.98 }}
@@ -200,7 +203,15 @@ const InstructorDashboard = () => {
                     <h3 className="course-mgr-title">{course.title}</h3>
                     <div className="course-mgr-metrics">
                       <div className="metric-item"><Users size={14} /> <span>{course.enrolledStudentsCount || 0} enrolled</span></div>
-                      <div className="metric-item"><Star size={14} color="#f59e0b" /> <span>4.9 ratings</span></div>
+                      {(() => {
+                        const courseFeedbacks = (Array.isArray(feedback) ? feedback : []).filter(f => f.courseId && f.courseId._id === course._id);
+                        const rating = courseFeedbacks.length > 0 
+                          ? (courseFeedbacks.reduce((a, b) => a + (b.rating || 0), 0) / courseFeedbacks.length).toFixed(1) 
+                          : 'No';
+                        return (
+                          <div className="metric-item"><Star size={14} color="#f59e0b" /> <span>{rating} rating{rating !== 'No' && 's'}</span></div>
+                        );
+                      })()}
                     </div>
                   </div>
 
@@ -227,9 +238,9 @@ const InstructorDashboard = () => {
 
         {activeTab === 'quizzes' && (
           <div className="quizzes-management-view">
-            {quizzes.length > 0 ? (
+            {(Array.isArray(quizzes) ? quizzes : []).length > 0 ? (
               <div className="instructor-course-stack">
-                {quizzes.map((quiz, i) => (
+                {(Array.isArray(quizzes) ? quizzes : []).map((quiz, i) => (
                   <motion.div
                     key={quiz._id}
                     initial={{ opacity: 0, scale: 0.98 }}
@@ -271,9 +282,9 @@ const InstructorDashboard = () => {
 
         {activeTab === 'students' && (
           <div className="students-management-view">
-            {students.length > 0 ? (
+            {(Array.isArray(students) ? students : []).length > 0 ? (
               <div className="students-grid">
-                {students.map((student, i) => (
+                {(Array.isArray(students) ? students : []).map((student, i) => (
                   <motion.div
                     key={student._id}
                     initial={{ opacity: 0, y: 10 }}
@@ -318,9 +329,9 @@ const InstructorDashboard = () => {
 
         {activeTab === 'feedback' && (
           <div className="feedback-management-view">
-            {feedback.length > 0 ? (
+            {(Array.isArray(feedback) ? feedback : []).length > 0 ? (
               <div className="instructor-course-stack">
-                {feedback.map((f, i) => (
+                {(Array.isArray(feedback) ? feedback : []).map((f, i) => (
                   <motion.div
                     key={f._id}
                     initial={{ opacity: 0, y: 10 }}
@@ -381,11 +392,11 @@ const InstructorDashboard = () => {
                   className="form-control"
                 >
                   <option value="">Select an assessment...</option>
-                  {courses.map(c => (
-                    <option key={c._id} value={c._id}>Quiz for: {c.title}</option>
+                  {(Array.isArray(quizzes) ? quizzes : []).map(q => (
+                    <option key={q._id} value={q._id}>{q.topic || `${q.difficulty} Assessment`}</option>
                   ))}
                 </select>
-                <p className="form-hint">Quizzes are automatically fetched from your courses.</p>
+                <p className="form-hint">Assign an assessment to {assignModal.studentId ? students.find(s => s._id === assignModal.studentId)?.name : 'student'}</p>
               </div>
 
               <div className="modal-actions">

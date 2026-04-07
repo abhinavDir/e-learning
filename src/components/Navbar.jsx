@@ -39,7 +39,14 @@ const Navbar = () => {
           </Link>
 
           <div className="desktop-nav">
-            {user?.role !== 'instructor' && (
+            {user?.role === 'instructor' ? (
+              <>
+                <Link to="/" className="nav-link">Home</Link>
+                <Link to="/instructor/dashboard" className="nav-link studio-link">Instructor Studio</Link>
+                <Link to="/instructor/create-course" className="nav-link">Create Course</Link>
+                <Link to="/instructor/create-quiz" className="nav-link">Create Quiz</Link>
+              </>
+            ) : (
               <>
                 <Link to="/courses" className="nav-link">Courses</Link>
                 <Link to="/quizzes" className="nav-link flex items-center gap-2">
@@ -50,9 +57,6 @@ const Navbar = () => {
                 </Link>
                 <Link to="/about" className="nav-link">Features</Link>
               </>
-            )}
-            {user?.role === 'instructor' && (
-              <Link to="/instructor/dashboard" className="nav-link studio-link">Instructor Studio</Link>
             )}
           </div>
         </div>
@@ -73,7 +77,7 @@ const Navbar = () => {
                 <AnimatePresence>
                   {dropdownOpen && (
                     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="dropdown-menu">
-                      <Link to="/dashboard" className="dropdown-item" onClick={() => setDropdownOpen(false)}><BrainCircuit size={16} /> Dashboard</Link>
+                      <Link to={user?.role === 'instructor' ? '/instructor/dashboard' : '/dashboard'} className="dropdown-item" onClick={() => setDropdownOpen(false)}><BrainCircuit size={16} /> Dashboard</Link>
                       <Link to="/profile" className="dropdown-item" onClick={() => setDropdownOpen(false)}><User size={16} /> Profile</Link>
                       <div className="dropdown-divider" />
                       <button onClick={handleLogout} className="dropdown-item logout-btn"><LogOut size={16} /> Logout</button>
@@ -108,17 +112,26 @@ const Navbar = () => {
                   </div>
                 </div>
               )}
-              <Link to="/courses" onClick={() => setIsOpen(false)} className="mobile-link">Course Catalog</Link>
-              <Link to="/quizzes" onClick={() => setIsOpen(false)} className="mobile-link">
-                <Zap size={18} className="text-secondary" /> Quiz Hub
-              </Link>
-              {user && user.role !== 'instructor' && (
-                <Link to="/ai-guide" onClick={() => setIsOpen(false)} className="btn-primary-mini flex items-center gap-2 mt-4 mx-4 justify-center">
-                  <BrainCircuit size={18} /> AI Guide
-                </Link>
+              {user?.role === 'instructor' ? (
+                <>
+                  <Link to="/" onClick={() => setIsOpen(false)} className="mobile-link">Home</Link>
+                  <Link to="/instructor/dashboard" onClick={() => setIsOpen(false)} className="mobile-link">Instructor Studio</Link>
+                  <Link to="/instructor/create-course" onClick={() => setIsOpen(false)} className="mobile-link">Create Course</Link>
+                  <Link to="/instructor/create-quiz" onClick={() => setIsOpen(false)} className="mobile-link">Create Quiz</Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/courses" onClick={() => setIsOpen(false)} className="mobile-link">Course Catalog</Link>
+                  <Link to="/quizzes" onClick={() => setIsOpen(false)} className="mobile-link">
+                    <Zap size={18} className="text-secondary" /> Quiz Hub
+                  </Link>
+                  <Link to="/ai-guide" onClick={() => setIsOpen(false)} className="btn-primary-mini flex items-center gap-2 mt-4 mx-4 justify-center">
+                    <BrainCircuit size={18} /> AI Guide
+                  </Link>
+                  <Link to="/about" onClick={() => setIsOpen(false)} className="mobile-link">About Mission</Link>
+                  {user && <Link to={user?.role === 'instructor' ? '/instructor/dashboard' : '/dashboard'} onClick={() => setIsOpen(false)} className="mobile-link">My Dashboard</Link>}
+                </>
               )}
-              <Link to="/about" onClick={() => setIsOpen(false)} className="mobile-link">About Mission</Link>
-              {user && <Link to="/dashboard" onClick={() => setIsOpen(false)} className="mobile-link">My Dashboard</Link>}
 
               <div className="mobile-divider" />
 

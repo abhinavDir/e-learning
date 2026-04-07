@@ -23,7 +23,8 @@ import {
   ShieldCheck,
   Award,
   Clock,
-  Download
+  Download,
+  PlayCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -89,25 +90,68 @@ const CreateCourse = () => {
 
   const resolveVideoUrl = (url) => {
     if (!url) return '';
-    const sUrl = String(url).trim();
+    let sUrl = String(url).trim();
+
+    // Handle common missing protocol issues
+    if (sUrl.startsWith('www.')) sUrl = `https://${sUrl}`;
+    if (sUrl.includes('youtube.com') || sUrl.includes('youtu.be') || sUrl.includes('vimeo.com')) {
+      if (!sUrl.startsWith('http')) sUrl = `https://${sUrl}`;
+      return sUrl;
+    }
+
     if (sUrl.startsWith('http')) return sUrl;
     if (sUrl.startsWith('//')) return `https:${sUrl}`;
-    
-    // If it's a local upload path from backend
+
     if (sUrl.startsWith('uploads/') || sUrl.startsWith('/uploads/')) {
       const base = api.defaults.baseURL ? api.defaults.baseURL.replace('/api', '') : 'http://localhost:5000';
-      const normalized = sUrl.startsWith('/') ? sUrl : `/${sUrl}`;
-      return `${base}${normalized}`;
+      return `${base}${sUrl.startsWith('/') ? sUrl : `/${sUrl}`}`;
     }
-    
-    // Fallback for domains without protocol (like www.youtube.com)
-    if (sUrl.includes('.') && !sUrl.includes(' ')) {
-      return `https://${sUrl}`;
-    }
-    
+
     return sUrl;
   };
-   
+
+  const VideoPreview = ({ url }) => {
+    if (!url) return null;
+    const resolvedUrl = resolveVideoUrl(url);
+    
+    // Explicit YouTube detection to avoid 'Black Box' fallback
+    const isYouTube = resolvedUrl.includes('youtube.com') || resolvedUrl.includes('youtu.be');
+    if (isYouTube) {
+      let videoId = '';
+      if (resolvedUrl.includes('v=')) {
+        videoId = resolvedUrl.split('v=')[1].split('&')[0];
+      } else if (resolvedUrl.includes('youtu.be/')) {
+        videoId = resolvedUrl.split('youtu.be/')[1].split('?')[0];
+      }
+      
+      if (videoId) {
+        return (
+          <iframe
+            width="100%"
+            height="100%"
+            src={`https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1`}
+            frameBorder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            title="YouTube Preview"
+            style={{ borderRadius: '12px' }}
+          ></iframe>
+        );
+      }
+    }
+
+    return (
+      <ReactPlayer
+        url={resolvedUrl}
+        controls
+        width="100%"
+        height="100%"
+        playsinline
+        config={{ youtube: { playerVars: { showinfo: 1 } } }}
+      />
+    );
+  };
+
 
   const handleVideoUpload = async (file, sIndex, lIndex) => {
     if (!file) return;
@@ -116,7 +160,7 @@ const CreateCourse = () => {
       const uploadData = new FormData();
       uploadData.append('video', file);
       const { data } = await api.post('/upload/video', uploadData);
-      
+
       const nextSections = formData.sections.map((s, si) => {
         if (si === sIndex) {
           const nextLectures = s.lectures.map((l, li) => {
@@ -141,7 +185,7 @@ const CreateCourse = () => {
       const uploadData = new FormData();
       uploadData.append('pdf', file);
       const { data } = await api.post('/upload/pdf', uploadData);
-      
+
       const nextSections = formData.sections.map((s, si) => {
         if (si === sIndex) {
           const nextLectures = s.lectures.map((l, li) => {
@@ -300,7 +344,7 @@ const CreateCourse = () => {
                     <option>All Levels</option>
                   </select>
                 </div>
-                
+
                 <div className="form-row">
                   <label><Clock size={12} /> Course Highlights (Duration)</label>
                   <input
@@ -407,7 +451,7 @@ const CreateCourse = () => {
                             <div className="lec-media-row mt-2 flex gap-2">
                               <input
                                 type="text"
-                                placeholder="Content Provider URL (mp4, youtube, etc)"
+                                placeholder="Video Matrix URL (mp4, youtube, etc)"
                                 className="lec-field flex-1"
                                 style={{ margin: 0 }}
                                 value={lecture.videoUrl}
@@ -426,32 +470,33 @@ const CreateCourse = () => {
                                 }}
                               />
                               <div className="lec-upload-wrap flex gap-2">
-                                 <label className="lec-upload-btn">
-                                    <ShieldCheck size={16} /> <span>Video</span>
-                                    <input 
-                                      type="file" 
-                                      accept="video/*" 
-                                      className="hidden" 
-                                      onChange={(e) => handleVideoUpload(e.target.files[0], sIndex, lIndex)} 
-                                    />
-                                 </label>
-                                 <label className="lec-upload-btn" style={{ borderColor: lecture.pdfUrl ? 'var(--primary)' : 'var(--glass-border)' }}>
-                                    <Download size={16} color={lecture.pdfUrl ? 'var(--primary)' : 'currentColor'} /> 
-                                    <span style={{ color: lecture.pdfUrl ? 'var(--primary)' : 'inherit' }}>{lecture.pdfUrl ? 'PDF Ready' : 'Add PDF'}</span>
-                                    <input 
-                                      type="file" 
-                                      accept=".pdf" 
-                                      className="hidden" 
-                                      onChange={(e) => handlePdfUpload(e.target.files[0], sIndex, lIndex)} 
-                                    />
-                                 </label>
+                                <label className="lec-upload-btn" style={{ borderColor: lecture.videoUrl ? 'var(--primary)' : 'var(--glass-border)' }}>
+                                  <PlayCircle size={16} color={lecture.videoUrl ? 'var(--primary)' : 'currentColor'} /> 
+                                  <span style={{ color: lecture.videoUrl ? 'var(--primary)' : 'inherit' }}>{lecture.videoUrl ? 'Video Linked' : 'Video'}</span>
+                                  <input
+                                    type="file"
+                                    accept="video/*"
+                                    className="hidden"
+                                    onChange={(e) => handleVideoUpload(e.target.files[0], sIndex, lIndex)}
+                                  />
+                                </label>
+                                <label className="lec-upload-btn" style={{ borderColor: lecture.pdfUrl ? 'var(--primary)' : 'var(--glass-border)' }}>
+                                  <Download size={16} color={lecture.pdfUrl ? 'var(--primary)' : 'currentColor'} />
+                                  <span style={{ color: lecture.pdfUrl ? 'var(--primary)' : 'inherit' }}>{lecture.pdfUrl ? 'PDF Ready' : 'Add PDF'}</span>
+                                  <input
+                                    type="file"
+                                    accept=".pdf"
+                                    className="hidden"
+                                    onChange={(e) => handlePdfUpload(e.target.files[0], sIndex, lIndex)}
+                                  />
+                                </label>
                               </div>
                             </div>
                             {lecture.videoUrl && (
                               <div className="lec-preview-mini mt-2" style={{ height: '140px', borderRadius: '12px', overflow: 'hidden' }}>
-                                <ReactPlayer 
-                                  url={resolveVideoUrl(lecture.videoUrl)} 
-                                  controls 
+                                <ReactPlayer
+                                  url={resolveVideoUrl(lecture.videoUrl)}
+                                  controls
                                   width="100%"
                                   height="100%"
                                 />
@@ -489,41 +534,41 @@ const CreateCourse = () => {
             </div>
           </section>
 
-            {/* Step 3: Outcomes Studio */}
-            <section className="glass-panel studio-card mt-10">
-               <div className="section-head flex-between">
-                  <div className="flex items-center gap-3">
-                    <div className="icon-box-small"><Award size={18} /></div>
-                    <h3 className="section-title-large">Outcomes Architect</h3>
-                  </div>
-                  <button type="button" onClick={handleAddOutcome} className="btn-add-module">
-                     <Plus size={16} /> New Outcome
-                  </button>
-               </div>
-               
-               <div className="form-content-inner">
-                  {formData.outcomes.map((outcome, idx) => (
-                    <div key={idx} className="lecture-input-row">
-                       <input 
-                         type="text" 
-                         required
-                         className="studio-input full-width"
-                         placeholder="e.g. Master React Hooks and Context API"
-                         value={outcome}
-                         onChange={(e) => handleOutcomeChange(idx, e.target.value)}
-                       />
-                       <button type="button" onClick={() => handleRemoveOutcome(idx)} className="btn-icon-danger ml-2">
-                          <Trash2 size={16} />
-                       </button>
-                    </div>
-                  ))}
-                  {formData.outcomes.length === 0 && (
-                    <p className="text-muted text-center py-6 text-sm">Add at least one learning outcome for your students.</p>
-                  )}
-               </div>
-            </section>
+          {/* Step 3: Outcomes Studio */}
+          <section className="glass-panel studio-card mt-10">
+            <div className="section-head flex-between">
+              <div className="flex items-center gap-3">
+                <div className="icon-box-small"><Award size={18} /></div>
+                <h3 className="section-title-large">Outcomes Architect</h3>
+              </div>
+              <button type="button" onClick={handleAddOutcome} className="btn-add-module">
+                <Plus size={16} /> New Outcome
+              </button>
+            </div>
 
-            {/* Step 4: Quiz Architecture */}
+            <div className="form-content-inner">
+              {formData.outcomes.map((outcome, idx) => (
+                <div key={idx} className="lecture-input-row">
+                  <input
+                    type="text"
+                    required
+                    className="studio-input full-width"
+                    placeholder="e.g. Master React Hooks and Context API"
+                    value={outcome}
+                    onChange={(e) => handleOutcomeChange(idx, e.target.value)}
+                  />
+                  <button type="button" onClick={() => handleRemoveOutcome(idx)} className="btn-icon-danger ml-2">
+                    <Trash2 size={16} />
+                  </button>
+                </div>
+              ))}
+              {formData.outcomes.length === 0 && (
+                <p className="text-muted text-center py-6 text-sm">Add at least one learning outcome for your students.</p>
+              )}
+            </div>
+          </section>
+
+          {/* Step 4: Quiz Architecture */}
           <section className="studio-quiz-builder">
             <div className="section-head flex-between">
               <div className="flex items-center gap-3">
@@ -663,15 +708,15 @@ const CreateCourse = () => {
               <div className="status-item"><div className="dot" /> Cloud CDN Propagation</div>
               <div className="status-item"><div className="dot" /> Asset Finalization</div>
             </div>
-            
+
             <div className="readiness-meter mt-4 mb-6">
-               <div className="flex-between mb-2">
-                  <span className="text-xs font-bold uppercase text-muted">Project Readiness</span>
-                  <span className="text-xs font-bold text-primary">72%</span>
-               </div>
-               <div className="meter-track">
-                  <div className="meter-fill" style={{ width: '72%' }} />
-               </div>
+              <div className="flex-between mb-2">
+                <span className="text-xs font-bold uppercase text-muted">Project Readiness</span>
+                <span className="text-xs font-bold text-primary">72%</span>
+              </div>
+              <div className="meter-track">
+                <div className="meter-fill" style={{ width: '72%' }} />
+              </div>
             </div>
 
             <button
@@ -715,7 +760,7 @@ const CreateCourse = () => {
         .form-row { display: flex; flex-direction: column; gap: 1rem; }
         .form-row label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.1em; }
         .studio-input { background: var(--alternate); border: 1px solid var(--glass-border); border-radius: 1.25rem; padding: 1.25rem; color: var(--text-main); transition: var(--transition); font-size: 1rem; }
-        .studio-input:focus { border-color: var(--primary); outline: none; background: white; box-shadow: var(--shadow-lg); }
+        .studio-input:focus { border-color: var(--primary); outline: none; background: var(--card-bg); box-shadow: var(--shadow-lg); }
         .title-field { font-size: 1.5rem; font-weight: 800; font-family: 'Outfit'; color: var(--text-title); }
         
         .form-double-row { display: grid; grid-template-columns: 1fr; gap: 1.5rem; }
@@ -728,7 +773,27 @@ const CreateCourse = () => {
         .btn-add-module:hover { background: var(--primary); color: white; }
 
         .module-stack { display: flex; flex-direction: column; gap: 2rem; margin-top: 3rem; }
-        .module-card { padding: 2.5rem; border-radius: 2rem; background: var(--card-bg); border: 1px solid var(--glass-border); }
+        .module-card { 
+          padding: 2.5rem; 
+          border-radius: 2.25rem; 
+          background: var(--surface); 
+          border: 1px solid var(--glass-border); 
+          position: relative;
+          overflow: hidden;
+          transition: var(--transition);
+        }
+        .module-card:hover { transform: translateY(-5px); border-color: var(--primary); box-shadow: var(--shadow-lg); }
+        .module-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 6px;
+          background: linear-gradient(to right, var(--primary), #a855f7);
+          opacity: 0.8;
+        }
+
         .module-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2.5rem; }
         .module-index { width: 3rem; height: 3rem; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1rem; }
         .module-title-input { flex: 1; background: transparent; border: none; font-size: 1.5rem; font-family: 'Outfit'; font-weight: 800; color: var(--text-title); outline: none; }
@@ -741,7 +806,7 @@ const CreateCourse = () => {
         .lecture-inputs { flex: 1; background: var(--alternate); padding: 1.5rem; border-radius: 1.5rem; border: 1px solid var(--glass-border); }
         .lec-top-row { display: flex; gap: 1rem; }
         .lec-field { background: var(--bg); border: 1px solid var(--glass-border); padding: 0.75rem 1.25rem; border-radius: 1rem; color: var(--text-main); outline: none; font-size: 0.9rem; }
-        .lec-field:focus { border-color: var(--primary); background: white; }
+        .lec-field:focus { border-color: var(--primary); background: var(--bg); }
         .lec-remove-btn { color: var(--text-muted); opacity: 0.5; transition: var(--transition); }
         .lec-remove-btn:hover { color: #ef4444; opacity: 1; }
         
@@ -785,6 +850,35 @@ const CreateCourse = () => {
         .bigger { padding-top: 1.25rem; padding-bottom: 1.25rem; font-size: 1rem; border-radius: 1.5rem; font-weight: 800; }
         .mt-3 { margin-top: 1rem; }
 
+        /* FULL DESKTOP OVERHAUL */
+        @media (min-width: 1024px) {
+          .max-width { max-width: 1600px !important; }
+          .studio-workspace-grid { display: grid; grid-template-columns: 1fr 340px; gap: 4rem; }
+          
+          .module-stack { 
+            display: grid !important; 
+            grid-template-columns: repeat(2, 1fr) !important; 
+            gap: 3.5rem; 
+            margin-top: 4rem;
+          }
+          
+          .module-card { padding: 1.5rem 2rem; border-radius: 2.5rem; }
+          .module-header { margin-bottom: 2rem; gap: 1.25rem; max-width: 550px; }
+          .module-index { width: 2.75rem; height: 2.75rem; font-size: 1rem; }
+          .module-title-input { font-size: 1.5rem; }
+          
+          .lecture-stack { padding-left: 1.5rem; gap: 1.5rem; border-left: 3px solid var(--primary-glow); }
+          .lecture-inputs { padding: 1.5rem; border-radius: 1.75rem; background: var(--alternate); max-width: 550px; }
+          .lec-top-row { display: grid; grid-template-columns: 1fr 120px; gap: 1rem; }
+          .lec-field { font-size: 0.95rem; padding: 0.75rem 1.25rem; }
+          
+          .form-double-row { grid-template-columns: repeat(2, 1fr); gap: 3rem; }
+          .studio-main-title { font-size: 3rem !important; margin-bottom: 0.75rem; }
+          
+          .sidebar-card { padding: 2.5rem; border-radius: 2.5rem; }
+          .btn-add-module { padding: 1.25rem 2.5rem; font-size: 1rem; }
+        }
+
         @media (max-width: 1200px) {
           .studio-workspace-grid { grid-template-columns: 1fr; gap: 1rem; }
           .studio-sidebar { position: static; order: -1; }
@@ -826,30 +920,62 @@ const CreateCourse = () => {
           
           .meter-track { height: 4px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
           .meter-fill { height: 100%; background: var(--primary); border-radius: 10px; box-shadow: 0 0 10px var(--primary); }
+
+          /* Mobile Polish Adjustments */
+          .studio-header { padding: 1rem; flex-direction: column; align-items: center; text-align: center; gap: 1.25rem; }
+          .header-left { flex-direction: column; gap: 0.75rem; }
+          .back-btn-studio { width: 2.5rem; height: 2.5rem; }
+          .studio-main-title { font-size: 1.5rem; }
+          .header-right { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+          .btn-secondary-outline, .studio-publish-btn { width: 100%; font-size: 0.85rem; padding: 0.75rem; justify-content: center; }
+          
+          .studio-card { padding: 1.5rem !important; }
+          .form-content-inner { gap: 1.5rem; }
+          .studio-input { padding: 1rem; font-size: 0.95rem; border-radius: 1rem; }
+          .title-field { font-size: 1.25rem; }
+
+          .module-card { padding: 1.5rem; border-radius: 1.5rem; }
+          .lecture-stack { padding-left: 0.5rem; border-left: none; gap: 1.5rem; }
+          .lecture-input-row { flex-direction: column; gap: 0.75rem; }
+          .lecture-drag-handle { display: none; }
+          .lecture-inputs { padding: 1rem; border-radius: 1.25rem; width: 100%; }
+          .lec-top-row { flex-direction: column; gap: 0.75rem; }
+          .lec-field { width: 100% !important; }
+          .lec-media-row { flex-direction: column; gap: 0.75rem; }
+          .lec-upload-wrap { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+          .lec-upload-btn { width: 100%; justify-content: center; }
+          .btn-add-lecture { width: 100%; justify-content: center; padding: 1rem; background: var(--alternate); border-radius: 1rem; }
+
+          .options-entry-grid { grid-template-columns: 1fr; gap: 0.75rem; }
+          .option-entry-row { padding: 0.5rem 0.75rem; }
+          .question-card-studio { padding: 1rem; }
+          .q-card-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+          .q-title-input { font-size: 1rem; width: 100%; }
+          .q-footer-info { display: none; }
         }
 
         .quiz-toggle-box { display: flex; align-items: center; gap: 1rem; }
         .quiz-toggle-label { font-size: 0.75rem; font-weight: 800; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; }
-        .quiz-toggle-btn { width: 3.5rem; height: 1.75rem; border-radius: 99px; position: relative; transition: var(--transition); border: 1px solid rgba(255,255,255,0.1); }
+        .quiz-toggle-btn { width: 3.5rem; height: 1.75rem; border-radius: 99px; position: relative; transition: var(--transition); border: 1px solid var(--glass-border); background: var(--alternate); }
         .quiz-toggle-btn.on { background: var(--primary); }
-        .quiz-toggle-btn.off { background: rgba(255,255,255,0.05); }
-        .toggle-dot { position: absolute; top: 3px; left: 3px; width: 1.25rem; height: 1.25rem; border-radius: 50%; background: white; transition: var(--transition); }
+        .quiz-toggle-btn.off { background: var(--alternate); }
+        .toggle-dot { position: absolute; top: 3px; left: 3px; width: 1.25rem; height: 1.25rem; border-radius: 50%; background: #ffffff; transition: var(--transition); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .on .toggle-dot { transform: translateX(1.75rem); }
         
         .studio-quiz-builder { margin-top: 4rem; }
-        .quiz-config-card { padding: 2rem; border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.05); }
+        .quiz-config-card { padding: 2rem; border-radius: 1.5rem; border: 1px solid var(--glass-border); background: var(--card-bg); }
         
         .question-stack { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 2rem; }
-        .question-card-studio { padding: 2rem; border-radius: 2rem; border: 1px solid rgba(255,255,255,0.05); }
+        .question-card-studio { padding: 2rem; border-radius: 2rem; border: 1px solid var(--glass-border); background: var(--card-bg); }
         .q-card-header { display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem; }
-        .q-count { background: rgba(255,255,255,0.05); width: 2.25rem; height: 2.25rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; color: var(--primary); border: 1px solid var(--primary); }
-        .q-title-input { flex: 1; background: transparent; border: none; font-size: 1.25rem; font-weight: 700; color: white; outline: none; }
-        .q-title-input::placeholder { color: rgba(255,255,255,0.1); }
+        .q-count { background: var(--alternate); width: 2.25rem; height: 2.25rem; border-radius: 0.75rem; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; color: var(--primary); border: 1px solid var(--primary); }
+        .q-title-input { flex: 1; background: transparent; border: none; font-size: 1.25rem; font-weight: 700; color: var(--text-title); outline: none; }
+        .q-title-input::placeholder { color: var(--text-muted); opacity: 0.4; }
         
         .options-entry-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .option-entry-row { display: flex; align-items: center; gap: 1rem; background: rgba(0,0,0,0.2); border-radius: 1rem; padding: 0.5rem 1rem; border: 1px solid rgba(255,255,255,0.03); }
-        .option-field { background: transparent; border: none; flex: 1; padding: 0.5rem 0; color: white; font-size: 0.9rem; outline: none; }
-        .correct-indicator { width: 1.5rem; height: 1.5rem; border-radius: 0.5rem; background: rgba(255,255,255,0.03); display: flex; align-items: center; justify-content: center; cursor: pointer; color: rgba(255,255,255,0.1); transition: var(--transition); border: 1px solid rgba(255,255,255,0.05); }
+        .option-entry-row { display: flex; align-items: center; gap: 1rem; background: var(--alternate); border-radius: 1rem; padding: 0.5rem 1rem; border: 1px solid var(--glass-border); }
+        .option-field { background: transparent; border: none; flex: 1; padding: 0.5rem 0; color: var(--text-main); font-size: 0.9rem; outline: none; }
+        .correct-indicator { width: 1.5rem; height: 1.5rem; border-radius: 0.5rem; background: var(--bg); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: var(--transition); border: 1px solid var(--glass-border); }
         .correct-indicator.active { background: #facc15; color: #854d0e; box-shadow: 0 0 15px #facc15; border-color: #facc15; }
         .q-footer-info { margin-top: 1.5rem; font-size: 0.7rem; color: var(--text-muted); }
         .q-footer-info strong { color: #facc15; }

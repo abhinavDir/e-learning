@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import api from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Plus, 
-  Trash2, 
+import {
+  Plus,
+  Trash2,
   BrainCircuit,
   ArrowLeft,
   Sparkles,
@@ -46,7 +46,7 @@ const CreateQuiz = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!quizData.topic) return toast.error('Please name your topic architecture.');
-    
+
     const incomplete = quizData.questions.some(q => !q.correctAnswer || !q.question || q.options.some(o => !o));
     if (incomplete) return toast.error('Ensure all questions, options, and correct answers are defined.');
 
@@ -54,7 +54,7 @@ const CreateQuiz = () => {
     try {
       await api.post('/quiz/create', {
         ...quizData,
-        isGlobal: true 
+        isGlobal: true
       });
 
       toast.success('Global Assessment Published Successfully!');
@@ -63,6 +63,29 @@ const CreateQuiz = () => {
       toast.error(err.response?.data?.error || 'Intelligence publication failed');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 30 },
+    show: { 
+      opacity: 1, 
+      y: 0,
+      transition: {
+        type: "spring",
+        stiffness: 100,
+        damping: 20
+      }
     }
   };
 
@@ -91,12 +114,18 @@ const CreateQuiz = () => {
         </div>
       </header>
 
-      <main className="studio-workspace max-width">
+      <motion.main 
+        className="studio-workspace max-width"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.1 }}
+      >
         <form onSubmit={handleSubmit} className="workspace-layout">
           <div className="workspace-primary-col">
-            
+
             {/* Core Configuration Card */}
-            <section className="studio-glass-card config-card">
+            <motion.section variants={itemVariants} className="studio-glass-card config-card">
               <div className="card-header">
                 <div className="header-icon-box blue">
                   <Layers size={20} />
@@ -112,11 +141,11 @@ const CreateQuiz = () => {
                   <label>Topic Signature</label>
                   <div className="input-with-icon">
                     <Sparkles size={18} className="input-focus-icon" />
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       placeholder="e.g. Applied Machine Learning Patterns"
                       value={quizData.topic}
-                      onChange={(e) => setQuizData({...quizData, topic: e.target.value})}
+                      onChange={(e) => setQuizData({ ...quizData, topic: e.target.value })}
                     />
                   </div>
                 </div>
@@ -124,9 +153,9 @@ const CreateQuiz = () => {
                 <div className="input-group-premium">
                   <label>Skill Level Mapping</label>
                   <div className="select-wrapper-premium">
-                    <select 
+                    <select
                       value={quizData.difficulty}
-                      onChange={(e) => setQuizData({...quizData, difficulty: e.target.value})}
+                      onChange={(e) => setQuizData({ ...quizData, difficulty: e.target.value })}
                     >
                       <option>Beginner</option>
                       <option>Intermediate</option>
@@ -135,10 +164,10 @@ const CreateQuiz = () => {
                   </div>
                 </div>
               </div>
-            </section>
+            </motion.section>
 
             {/* Questions Collection */}
-            <section className="questions-architect-area">
+            <motion.section variants={itemVariants} className="questions-architect-area">
               <div className="area-title-bar">
                 <Shield size={18} className="text-primary" />
                 <h3>Question Sequences</h3>
@@ -148,7 +177,7 @@ const CreateQuiz = () => {
               <div className="question-nodes-list">
                 <AnimatePresence mode="popLayout">
                   {quizData.questions.map((q, qIndex) => (
-                    <motion.div 
+                    <motion.div
                       key={qIndex}
                       id={`q-node-${qIndex}`}
                       layout
@@ -159,15 +188,15 @@ const CreateQuiz = () => {
                     >
                       <div className="node-header">
                         <div className="node-number">{qIndex + 1}</div>
-                        <input 
-                          type="text" 
+                        <input
+                          type="text"
                           className="node-title-input"
                           placeholder="Architect your query pattern here..."
                           value={q.question}
                           onChange={(e) => {
                             const nextQ = [...quizData.questions];
                             nextQ[qIndex].question = e.target.value;
-                            setQuizData({...quizData, questions: nextQ});
+                            setQuizData({ ...quizData, questions: nextQ });
                           }}
                         />
                         <button type="button" onClick={() => handleRemoveQuizQuestion(qIndex)} className="node-delete-btn">
@@ -178,18 +207,18 @@ const CreateQuiz = () => {
                       <div className="node-options-grid">
                         {q.options.map((opt, oIndex) => (
                           <div key={oIndex} className={`option-input-row ${q.correctAnswer === opt && opt !== '' ? 'correct-active' : ''}`}>
-                            <div 
+                            <div
                               className="correct-toggle-trigger"
                               onClick={() => {
                                 const nextQ = [...quizData.questions];
                                 nextQ[qIndex].correctAnswer = opt;
-                                setQuizData({...quizData, questions: nextQ});
+                                setQuizData({ ...quizData, questions: nextQ });
                               }}
                             >
                               <Sparkles size={14} />
                             </div>
-                            <input 
-                              type="text" 
+                            <input
+                              type="text"
                               placeholder={`Response Variant ${oIndex + 1}`}
                               value={opt}
                               onChange={(e) => {
@@ -197,7 +226,7 @@ const CreateQuiz = () => {
                                 nextQ[qIndex].options[oIndex] = e.target.value;
                                 // Auto-update correct answer if it was this option
                                 if (q.correctAnswer === opt) nextQ[qIndex].correctAnswer = e.target.value;
-                                setQuizData({...quizData, questions: nextQ});
+                                setQuizData({ ...quizData, questions: nextQ });
                               }}
                             />
                           </div>
@@ -212,11 +241,11 @@ const CreateQuiz = () => {
                 <div className="plus-icon-container"><Plus size={24} /></div>
                 <span>Initialize Next Intelligence Sequence</span>
               </button>
-            </section>
+            </motion.section>
           </div>
 
           <aside className="workspace-sidebar">
-            <div className="studio-glass-card sidebar-control-panel sticky-panel">
+            <motion.div variants={itemVariants} className="studio-glass-card sidebar-control-panel sticky-panel">
               <div className="panel-header">
                 <Settings size={16} className="text-primary" />
                 <h4>Neural Map</h4>
@@ -227,7 +256,7 @@ const CreateQuiz = () => {
                   {quizData.questions.map((q, idx) => {
                     const isComplete = q.question && q.correctAnswer && !q.options.some(o => !o);
                     return (
-                      <button 
+                      <button
                         key={idx}
                         type="button"
                         onClick={() => {
@@ -247,26 +276,26 @@ const CreateQuiz = () => {
               </div>
 
               <div className="telemetry-stats">
-                 <div className="stat-row">
-                    <div className="stat-led emerald" />
-                    <span className="stat-label">Global Uplink</span>
-                    <span className="stat-value">ACTIVE</span>
-                 </div>
-                 <div className="stat-row">
-                    <div className="stat-led blue" />
-                    <span className="stat-label">Intelligence Units</span>
-                    <span className="stat-value">{quizData.questions.length}</span>
-                 </div>
+                <div className="stat-row">
+                  <div className="stat-led emerald" />
+                  <span className="stat-label">Global Uplink</span>
+                  <span className="stat-value">ACTIVE</span>
+                </div>
+                <div className="stat-row">
+                  <div className="stat-led blue" />
+                  <span className="stat-label">Intelligence Units</span>
+                  <span className="stat-value">{quizData.questions.length}</span>
+                </div>
               </div>
 
               <div className="workspace-tip">
                 <Info size={14} />
                 <p>Ensure each sequence has a designated correct response marked by the sparkle icon.</p>
               </div>
-            </div>
+            </motion.div>
           </aside>
         </form>
-      </main>
+      </motion.main>
     </div>
   );
 };

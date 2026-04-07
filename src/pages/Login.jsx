@@ -103,7 +103,7 @@ const Login = () => {
 
         .auth-form { display: flex; flex-direction: column; gap: 2rem; }
         .field-group { display: flex; flex-direction: column; gap: 0.75rem; }
-        .field-label { font-size: 0.85rem; font-weight: 700; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.05em; }
+        .field-label { font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
         .input-wrapper { position: relative; }
         .input-icon { position: absolute; left: 1.5rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
         .pad-icon { padding-left: 3.5rem !important; }

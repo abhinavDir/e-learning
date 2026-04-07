@@ -5,7 +5,7 @@
   --primary-dark: #4338ca;
   --primary-glow: rgba(79, 70, 229, 0.3);
   --accent: #f43f5e;
-  
+
   /* Theme Variables - Modern Light Mode */
   --bg: #fdfdfe;
   --bg-grid: radial-gradient(rgba(99, 102, 241, 0.05) 1px, transparent 1px);
@@ -19,12 +19,14 @@
   --glass-border: rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 40px 100px -20px rgba(99, 102, 241, 0.08);
   --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.03);
-  
+
   --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
   --font-h1: clamp(2.5rem, 8vw, 4.5rem);
   --font-h2: clamp(2rem, 6vw, 3rem);
   --font-h3: clamp(1.5rem, 4vw, 2rem);
   --font-body: clamp(0.95rem, 1vw + 0.5rem, 1.1rem);
+
+  color-scheme: light dark;
 }
 
 [data-theme='dark'] {
@@ -61,11 +63,32 @@ body {
   transition: background 0.5s ease, color 0.5s ease;
 }
 
-h1, h2, h3, h4, h5, h6 {
+input, select, textarea {
+  color: var(--text-main);
+}
+
+.field-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 0.75rem;
+  display: block;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   color: var(--text-title);
 }
 
-p, span, div {
+p,
+span,
+div {
   color: var(--text-main);
 }
 
@@ -224,7 +247,7 @@ button {
 
 .input-field {
   width: 100%;
-  background: var(--alternate);
+  background-color: var(--alternate);
   border: 1px solid var(--glass-border);
   border-radius: 1rem;
   padding: 1rem 1.5rem;
@@ -233,10 +256,25 @@ button {
   transition: var(--transition);
 }
 
+.input-field::placeholder {
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
 .input-field:focus {
   outline: none;
+  background-color: var(--card-bg);
   border-color: var(--primary);
   box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15);
+}
+
+/* Chrome/Safari Autofill Fix */
+.input-field:-webkit-autofill,
+.input-field:-webkit-autofill:hover, 
+.input-field:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text-main);
+  -webkit-box-shadow: 0 0 0px 1000px var(--alternate) inset;
+  transition: background-color 5000s ease-in-out 0s;
 }
 
 /* Navbar Styles */

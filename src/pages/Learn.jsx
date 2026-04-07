@@ -102,28 +102,28 @@ const Learn = () => {
   const resolveVideoUrl = (url) => {
     if (!url) return '';
     const sUrl = String(url).trim();
-    
+
     // 1. Direct Cloudinary or HTTP/S links
     if (sUrl.startsWith('http')) return sUrl;
-    
+
     // 2. Protocol-relative links
     if (sUrl.startsWith('//')) return `https:${sUrl}`;
-    
+
     // 3. Local Cloudinary partials (rare but handled)
     if (sUrl.includes('cloudinary.com')) return `https://${sUrl.replace(/^https?:\/\//, '')}`;
-    
+
     // 4. Local uploads from backend
     if (sUrl.startsWith('uploads/') || sUrl.startsWith('/uploads/')) {
       const base = api.defaults.baseURL ? api.defaults.baseURL.replace('/api', '') : 'http://localhost:5000';
       const normalized = sUrl.startsWith('/') ? sUrl : `/${sUrl}`;
       return `${base}${normalized}`;
     }
-    
+
     // 5. Fallback for common domain formats
     if (sUrl.includes('.') && !sUrl.includes(' ')) {
       return `https://${sUrl}`;
     }
-    
+
     return sUrl;
   };
 
@@ -131,7 +131,7 @@ const Learn = () => {
     const rawUrl = lecture.videoUrl || '';
     const isYT = rawUrl.includes('youtube.com') || rawUrl.includes('youtu.be');
     const resolvedUrl = isYT ? getEmbedUrl(rawUrl) : resolveVideoUrl(rawUrl);
-    
+
     setCurrentLecture({ ...lecture, resolvedUrl, isYT });
     setIsCinemaMode(true);
     setCanFinish(false);
@@ -343,11 +343,11 @@ const Learn = () => {
               <div className="info-left">
                 <h1 className="lesson-title">{currentLecture.title}</h1>
                 <p className="lesson-desc">{currentLecture.description || 'Master the concepts with interactive lessons and AI-assisted doubt solving.'}</p>
-                
+
                 {currentLecture.pdfUrl && (
-                  <a 
-                    href={currentLecture.pdfUrl} 
-                    target="_blank" 
+                  <a
+                    href={currentLecture.pdfUrl}
+                    target="_blank"
                     rel="noopener noreferrer"
                     className="btn-secondary-outline mt-6 flex items-center gap-2"
                     style={{ width: 'fit-content', padding: '0.75rem 1.5rem', borderRadius: '1rem' }}

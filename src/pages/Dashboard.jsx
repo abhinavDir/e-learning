@@ -21,6 +21,7 @@ import { Link } from 'react-router-dom';
 import Recommendations from '../components/Recommendations';
 import Chatbot from '../components/Chatbot';
 import toast from 'react-hot-toast';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const [enrolled, setEnrolled] = useState([]);
@@ -29,6 +30,13 @@ const Dashboard = () => {
   const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
   const { user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user?.role === 'instructor') {
+      navigate('/instructor/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
 
   const [activeView, setActiveView] = useState('courses');
 
@@ -36,7 +44,7 @@ const Dashboard = () => {
     const fetchMyCourses = async () => {
       try {
         const { data } = await api.get('/enroll/my-courses');
-        setEnrolled(data);
+        setEnrolled(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
       }
@@ -45,7 +53,7 @@ const Dashboard = () => {
     const fetchAssignedQuizzes = async () => {
       try {
         const { data } = await api.get('/quiz/assigned');
-        setAssignedQuizzes(data);
+        setAssignedQuizzes(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
       }
@@ -54,7 +62,7 @@ const Dashboard = () => {
     const fetchMyProfile = async () => {
       try {
         const { data } = await api.get('/auth/me');
-        setActivities(data.activities || []);
+        setActivities(Array.isArray(data.activities) ? data.activities : []);
       } catch (err) {
         console.error(err);
       }
@@ -63,7 +71,7 @@ const Dashboard = () => {
     const fetchGlobalQuizzes = async () => {
       try {
         const { data } = await api.get('/quiz/global');
-        setGlobalQuizzes(data);
+        setGlobalQuizzes(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error(err);
       }
@@ -102,8 +110,8 @@ const Dashboard = () => {
       {/* Analytic Toggle Hub */}
       <div className="stats-grid grid-4">
         {stats.map((stat) => (
-          <button 
-            key={stat.id} 
+          <button
+            key={stat.id}
             onClick={() => setActiveView(stat.id)}
             className={`card stat-card-btn ${activeView === stat.id ? 'active-stat' : ''}`}
           >
@@ -121,7 +129,7 @@ const Dashboard = () => {
       <div className="mission-content-portal mt-12">
         <AnimatePresence mode="wait">
           {activeView === 'courses' && (
-            <motion.section 
+            <motion.section
               key="courses"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -131,26 +139,26 @@ const Dashboard = () => {
               <h2 className="section-heading">My Active Curriculums</h2>
               {enrolled.length > 0 ? (
                 <div className="grid-3">
-                  {enrolled.map((item, i) => (
+                  {(enrolled || []).map((item, i) => (
                     <div key={item._id} className="card enrolled-card group">
-                       <div className="card-thumb-area">
-                          <img src={item.course.thumbnail} alt={item.course.title} />
-                          <div className="hover-play-overlay">
-                            <Link to={`/learn/${item.course._id}`} className="play-button-central">
-                              <PlayCircle size={48} fill="white" />
-                            </Link>
+                      <div className="card-thumb-area">
+                        <img src={item.course.thumbnail} alt={item.course.title} />
+                        <div className="hover-play-overlay">
+                          <Link to={`/learn/${item.course._id}`} className="play-button-central">
+                            <PlayCircle size={48} fill="white" />
+                          </Link>
+                        </div>
+                      </div>
+                      <div className="card-details">
+                        <h3 className="course-card-title">{item.course.title}</h3>
+                        <div className="progress-section">
+                          <div className="progress-meta">Progress: {Math.round(item.progress)}%</div>
+                          <div className="progress-track-bg">
+                            <div className="progress-bar-fill" style={{ width: `${item.progress}%` }} />
                           </div>
-                       </div>
-                       <div className="card-details">
-                          <h3 className="course-card-title">{item.course.title}</h3>
-                          <div className="progress-section">
-                             <div className="progress-meta">Progress: {Math.round(item.progress)}%</div>
-                             <div className="progress-track-bg">
-                                <div className="progress-bar-fill" style={{ width: `${item.progress}%` }} />
-                             </div>
-                          </div>
-                          <Link to={`/learn/${item.course._id}`} className="btn-secondary-full">Continue Mission</Link>
-                       </div>
+                        </div>
+                        <Link to={`/learn/${item.course._id}`} className="btn-secondary-full">Continue Mission</Link>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -161,16 +169,16 @@ const Dashboard = () => {
           )}
 
           {activeView === 'assigned' && (
-            <motion.section 
-               key="assigned"
-               initial={{ opacity: 0, y: 10 }}
-               animate={{ opacity: 1, y: 0 }}
-               exit={{ opacity: 0, y: -10 }}
-               className="section-container"
+            <motion.section
+              key="assigned"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="section-container"
             >
               <h2 className="section-heading">Assigned Verifications</h2>
               <div className="grid-3">
-                {assignedQuizzes.map((quiz) => (
+                {(assignedQuizzes || []).map((quiz) => (
                   <div key={quiz._id} className="card assignment-card-compact">
                     <div className="difficulty-pill">{quiz.quizId?.difficulty}</div>
                     <h3 className="mission-topic">{quiz.quizId?.topic || 'Curriculum Check'}</h3>
@@ -182,16 +190,16 @@ const Dashboard = () => {
           )}
 
           {activeView === 'global' && (
-            <motion.section 
-               key="global"
-               initial={{ opacity: 0, y: 10 }}
-               animate={{ opacity: 1, y: 0 }}
-               exit={{ opacity: 0, y: -10 }}
-               className="section-container"
+            <motion.section
+              key="global"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="section-container"
             >
               <h2 className="section-heading">Global Missions</h2>
               <div className="grid-3">
-                {globalQuizzes.map((quiz) => (
+                {(globalQuizzes || []).map((quiz) => (
                   <div key={quiz._id} className="card global-mission-box">
                     <h3 className="mission-topic">{quiz.topic} Masterclass</h3>
                     <Link to={`/quiz/${quiz._id}?mode=global`} className="btn-secondary-full">Launch Protocol</Link>
@@ -202,17 +210,17 @@ const Dashboard = () => {
           )}
 
           {activeView === 'completed' && (
-            <motion.section 
-               key="completed"
-               initial={{ opacity: 0, y: 10 }}
-               animate={{ opacity: 1, y: 0 }}
-               exit={{ opacity: 0, y: -10 }}
-               className="section-container"
+            <motion.section
+              key="completed"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="section-container"
             >
               <h2 className="section-heading">Intelligence History & Certificates</h2>
               {activities.length > 0 ? (
                 <div className="activity-stack">
-                  {activities.slice().reverse().map((activity, i) => (
+                  {(activities || []).slice().reverse().map((activity, i) => (
                     <div key={i} className="activity-row-modern glass-panel">
                       <div className="row-info">
                         <div className="row-icon-box"><Trophy size={16} /></div>
@@ -226,7 +234,7 @@ const Dashboard = () => {
                           <div className="proficiency-badge">{activity.metadata.percent}% Mastery</div>
                         )}
                         <button className="btn-certificate-view" onClick={() => toast('Certificate Generation Syncing...')}>
-                           View Certificate
+                          View Certificate
                         </button>
                       </div>
                     </div>
@@ -239,10 +247,11 @@ const Dashboard = () => {
           )}
         </AnimatePresence>
       </div>
-      
+
       <Chatbot />
 
-      <style dangerouslySetInnerHTML={{ __html: `
+      <style dangerouslySetInnerHTML={{
+        __html: `
         .dashboard-portal { min-height: 100vh; position: relative; }
         .dashboard-header { margin-bottom: 4rem; }
         .badge-wrapper { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); padding: 0.4rem 0.85rem; border-radius: 999px; color: var(--primary); font-weight: 700; font-size: 0.75rem; text-transform: uppercase; margin-bottom: 1.5rem; }

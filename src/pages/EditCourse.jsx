@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ReactPlayer from 'react-player';
 import {
   Plus, Trash2, Save, Type, Award, Clock, Image as ImageIcon,
-  MonitorPlay, ArrowLeft, Settings, UploadCloud, RefreshCw, History, FileText, ShieldCheck
+  MonitorPlay, ArrowLeft, Settings, UploadCloud, RefreshCw, History, FileText, PlayCircle
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -101,6 +101,31 @@ const EditCourse = () => {
     } catch (err) {
       toast.error('Uplink failed: ' + (err.response?.data?.error || 'Server connection interrupted'), { id: toastId });
     }
+  };
+
+  const resolveVideoUrl = (url) => {
+    if (!url) return '';
+    let sUrl = String(url).trim();
+    
+    // Explicitly handle YouTube/Vimeo to prevent native player fallback
+    if (sUrl.includes('youtube.com') || sUrl.includes('youtu.be') || sUrl.includes('vimeo.com')) {
+      return sUrl.startsWith('http') ? sUrl : `https://${sUrl}`;
+    }
+
+    if (sUrl.startsWith('http')) return sUrl;
+    if (sUrl.startsWith('//')) return `https:${sUrl}`;
+
+    if (sUrl.startsWith('uploads/') || sUrl.startsWith('/uploads/')) {
+      const base = api.defaults.baseURL ? api.defaults.baseURL.replace('/api', '') : 'http://localhost:5000';
+      const normalized = sUrl.startsWith('/') ? sUrl : `/${sUrl}`;
+      return `${base}${normalized}`;
+    }
+
+    if (sUrl.includes('.') && !sUrl.includes(' ')) {
+      return `https://${sUrl}`;
+    }
+
+    return sUrl;
   };
 
   const handleSubmit = async (e) => {
@@ -284,7 +309,7 @@ const EditCourse = () => {
                         <div className="ec-media-row mt-2 flex gap-2">
                           <input 
                             type="text" 
-                            placeholder="Video Content URL (mp4, youtube, etc)" 
+                            placeholder="Video Matrix URL (mp4, youtube, etc)" 
                             className="ec-lecture-field flex-1" 
                             style={{ margin: 0 }}
                             value={lecture.videoUrl} 

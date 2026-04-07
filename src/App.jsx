@@ -34,7 +34,8 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/dashboard" replace />;
+    const homePath = user.role === 'instructor' ? '/instructor/dashboard' : '/dashboard';
+    return <Navigate to={homePath} replace />;
   }
 
   return children;

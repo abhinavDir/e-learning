@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import api from '../api/axios';
 import { motion } from 'framer-motion';
-import { 
-  Globe, 
+import {
+  Globe,
   ShieldCheck,
   Zap,
   Layers,
@@ -43,7 +43,7 @@ const Quizzes = () => {
   return (
     <div className="quizzes-container">
       <header className="quizzes-hero">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           className="hero-badge"
@@ -60,18 +60,18 @@ const Quizzes = () => {
         <div className="search-and-filter">
           <div className="search-box-premium">
             <Globe className="search-icon" size={18} />
-            <input 
-              type="text" 
-              placeholder="Search 1,000+ Neural Maps..." 
+            <input
+              type="text"
+              placeholder="Search 1,000+ Neural Maps..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
             />
           </div>
-          
+
           <div className="category-tabs">
             {['All', 'Technical', 'Non-Technical'].map(cat => (
-              <button 
+              <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 className={`category-tab ${activeCategory === cat ? 'active' : ''}`}
@@ -84,11 +84,11 @@ const Quizzes = () => {
 
         <div className="grid-controls">
           <div className="section-intro">
-             <h2 className="section-title-premium">Active Neural Nodes</h2>
-             <p className="quizzes-count">Benchmarks verified for {quizzes.length} open-source skill maps.</p>
+            <h2 className="section-title-premium">Active Neural Nodes</h2>
+            <p className="quizzes-count">Benchmarks verified for {quizzes.length} open-source skill maps.</p>
           </div>
           <div className="filter-pill">
-             <Sparkles size={16} /> <span>{searchTerm ? `Searching: ${searchTerm}` : 'Intelligent Sorting Active'}</span>
+            <Sparkles size={16} /> <span>{searchTerm ? `Searching: ${searchTerm}` : 'Intelligent Sorting Active'}</span>
           </div>
         </div>
 
@@ -101,40 +101,40 @@ const Quizzes = () => {
             })
             .slice(0, 50) // Showing only top 50 for performance, users can search for more
             .map((quiz, i) => (
-            <motion.div
-              key={quiz._id}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.05 }}
-              className="global-quiz-card-full"
-            >
-              <div className="card-accent-line" />
-              <div className="card-body-main">
-                <div className="quiz-meta-row">
-                  <div className="difficulty-tag-poured">{quiz.difficulty}</div>
-                  <div className="unit-tag">
-                    <Layers size={14} /> <span>{quiz.questions.length} Units</span>
+              <motion.div
+                key={quiz._id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                className="global-quiz-card-full"
+              >
+                <div className="card-accent-line" />
+                <div className="card-body-main">
+                  <div className="quiz-meta-row">
+                    <div className="difficulty-tag-poured">{quiz.difficulty}</div>
+                    <div className="unit-tag">
+                      <Layers size={14} /> <span>{quiz.questions.length} Units</span>
+                    </div>
                   </div>
-                </div>
-                
-                <h3 className="quiz-title-prominent">{quiz.topic} Masterclass</h3>
-                <p className="quiz-desc-minor">
-                  A comprehensive intelligence sequence designed for benchmarking high-level proficiency in this domain.
-                </p>
-                
-                <div className="quiz-footer-meta">
-                   <div className="expert-signature">
+
+                  <h3 className="quiz-title-prominent">{quiz.topic} Masterclass</h3>
+                  <p className="quiz-desc-minor">
+                    A comprehensive intelligence sequence designed for benchmarking high-level proficiency in this domain.
+                  </p>
+
+                  <div className="quiz-footer-meta">
+                    <div className="expert-signature">
                       <div className="signature-dot" />
                       <span>Expert Assessment</span>
-                   </div>
-                   <Link to={`/quiz/${quiz._id}?mode=global`} className="btn-primary-glow">
+                    </div>
+                    <Link to={`/quiz/${quiz._id}?mode=global`} className="btn-primary-glow">
                       Commence <Zap size={16} />
-                   </Link>
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
 
           {quizzes.length === 0 && (
             <div className="empty-state-quizzes">

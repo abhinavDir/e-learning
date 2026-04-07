@@ -105,11 +105,16 @@ const Footer = () => {
           .footer-grid { grid-template-columns: 1fr 1fr; gap: 4rem; }
         }
         @media (max-width: 640px) {
-          .footer-grid { grid-template-columns: 1fr; }
+          .footer-grid { grid-template-columns: 1fr; gap: 3rem; text-align: center; }
+          .footer-brand, .footer-column { align-items: center; text-align: center; }
+          .brand-desc { text-align: center; margin: 0 auto; max-width: 100%; }
+          .social-links { justify-content: center; margin: 0 auto; }
+          .footer-link { justify-content: center; transform: none !important; }
+          .newsletter-box { max-width: 320px; margin: 1.5rem auto 0; width: 100%; display: flex; flex-direction: column; gap: 1rem; padding: 1rem; border-radius: 1.5rem; }
+          .email-input { width: 100%; text-align: center; padding: 0.75rem; }
+          .join-btn { width: 100%; }
           .legal-flex { flex-direction: column; gap: 2rem; text-align: center; }
-          .legal-links { gap: 2rem; }
-          .footer-brand { text-align: center; align-items: center; }
-          .brand-desc { text-align: center; }
+          .legal-links { gap: 2rem; justify-content: center; }
         }
       ` }} />
       <div className="footer-bg-glow" />
